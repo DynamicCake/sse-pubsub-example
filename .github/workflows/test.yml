@@ -16,7 +16,7 @@ jobs:
         run: apt-get update && apt-get install -y sudo
 
       - uses: actions/checkout@v4
-      - uses: https://github.com/cachix/install-nix-action@v31
+      - uses: cachix/install-nix-action@v31
 
         # pre-build the shell separately to avoid skewing the run time of the next
         # step and have clear point of failure should the shell fail to build
