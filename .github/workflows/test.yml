@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+
+# Nix pilled gh actions
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install sudo
+        run: apt-get update && apt-get install -y sudo
+
+      - uses: actions/checkout@v4
+      - uses: https://github.com/cachix/install-nix-action@v31
+
+        # pre-build the shell separately to avoid skewing the run time of the next
+        # step and have clear point of failure should the shell fail to build
+      - name: Pre-build devShell
+        run: nix build --no-link .#devShells.$(nix eval --impure --raw --expr 'builtins.currentSystem').default
+
+      - name: Check formatting with nix develop
+        shell: "nix develop -c bash -e {0}"
+        run: gleam format --check src test
+      - name: Run tests with nix develop
+        shell: "nix develop -c bash -e {0}"
+        run: gleam test
